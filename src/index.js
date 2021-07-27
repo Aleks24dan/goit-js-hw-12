@@ -13,23 +13,27 @@ const refs = getRefs();
 refs.inputSearch.addEventListener('input', debounce(onSearch, DEBOUNCE_DELAY));
 
 function onSearch() {
-    const name = refs.inputSearch.value;
-    refs.countryInfo.innerHTML = '';
 
-    API.fetchCountry(name)
+    const name = refs.inputSearch.value.trim();
+    refs.countryInfo.innerHTML = '';
+    if (name === '') {
+        return;
+    } else {
+        API.fetchCountry(name)
         .then(renderCountryCard)
-        .catch(error => console.log(error))             
+        .catch(error => {
+      getErrorMessage('Oops, there is no country with that name');
+    });
+    }
+                
 }
 
-function renderCountryCard(name) {
-
+function renderCountryCard(name){
     if (name.length === 1) {
         const markup = name[0];
         refs.countryInfo.insertAdjacentHTML('beforeend', countryCardTpl(markup));        
     } else if (name.length > 10) {
         getInfoMessage('Too many matches found. Please enter a more specific name.');
-    } else if (name.status === 404){
-        getErrorMessage('Oops, there is no country with that name');
     } else {
         refs.countryInfo.innerHTML = countriesTpl(name);
     }
